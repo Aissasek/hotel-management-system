@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hotel-bg { 
+            background-size: cover; 
+            background-position: center; 
+            transition: background 0.5s ease;
+        }
+    </style>
+    <link rel="icon" href="data:,">
+</head>
+<body class="hotel-bg h-screen flex items-center justify-center">
+
+    <div class="bg-white/10 backdrop-blur-xl border border-white/20 p-10 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] w-[400px] text-center">
+        <h1 id="hotelNameDisplay" class="text-3xl font-extrabold text-[#C5A059] mb-4 tracking-widest italic drop-shadow-md">Loading...</h1>
+        
+        <h1 id="title" class="text-xl font-light mb-8 text-white tracking-wide">Login to Our Hotel</h1>
+        
+        <form id="authForm" class="space-y-5">
+            <input type="text" id="fullName" placeholder="Full Name" class="hidden w-full p-4 rounded-xl bg-white/5 border border-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#C5A059]">
+            <input type="email" id="email" placeholder="Email Address" required class="w-full p-4 rounded-xl bg-white/5 border border-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#C5A059]">
+            <input type="password" id="password" placeholder="Password" required class="w-full p-4 rounded-xl bg-white/5 border border-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#C5A059]">
+            <input type="password" id="confirmPassword" placeholder="Confirm Password" class="hidden w-full p-4 rounded-xl bg-white/5 border border-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#C5A059]">
+
+            <div id="rememberDiv" class="text-left text-gray-300 text-sm pl-2">
+                <input type="checkbox" id="rememberMe"> Remember me
+            </div>
+
+            <button type="submit" id="submitBtn" class="w-full bg-[#C5A059] hover:bg-[#b08d4b] text-white py-4 rounded-xl font-semibold transition shadow-lg">Login</button>
+        </form>
+
+        <p class="mt-6 text-sm text-gray-200 cursor-pointer" onclick="toggleMode()">
+            <span id="toggleText" class="text-[#C5A059] hover:text-white transition underline underline-offset-4">Don't have an account? Sign up</span>
+        </p>
+        <button onclick="changeAdminPassword()" class="mt-4 text-xs text-gray-500 underline">Change Admin Password</button>
+    </div>
+
+    <script>
+        let isLogin = true;
+
+        async function loadHotelName() {
+            try {
+                const res = await fetch('/api/settings');
+                const data = await res.json();
+                const hotelName = data.find(s => s.key === 'hotel_name');
+                if(hotelName) document.getElementById('hotelNameDisplay').innerText = hotelName.value;
+            } catch (err) {}
+        }
+        loadHotelName();
+
+        async function loadBg() {
+            try {
+                const res = await fetch('/api/bg-image');
+                const data = await res.json();
+                if (data.url) {
+                    document.body.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('${data.url}')`;
+                }
+            } catch (err) {}
+        }
+        loadBg();
+
+        async function changeAdminPassword() {
+            const oldPass = prompt("Enter current admin password:");
+            const newPass = prompt("Enter new admin password:");
+            if (oldPass && newPass) {
+                const res = await fetch('/api/change-password', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ oldPass, newPass })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert("Password updated successfully!");
+                } else {
+                    alert("Failed! Please check your old password.");
+                }
+            }
+        }
+
+        function toggleMode() {
+            isLogin = !isLogin;
+            document.getElementById('title').innerText = isLogin ? "Login to Our Hotel" : "Create Account";
+            document.getElementById('submitBtn').innerText = isLogin ? "Login" : "Sign Up";
+            document.getElementById('toggleText').innerText = isLogin ? "Don't have an account? Sign up" : "Already have an account? Login";
+            
+            // إضافة خاصية required للحقل عند التسجيل
+            const nameInput = document.getElementById('fullName');
+            nameInput.classList.toggle('hidden');
+            nameInput.required = !isLogin; 
+            
+            document.getElementById('confirmPassword').classList.toggle('hidden');
+            document.getElementById('rememberDiv').classList.toggle('hidden');
+        }
+
+        document.getElementById('authForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(!isLogin && document.getElementById('password').value !== document.getElementById('confirmPassword').value) return alert("Passwords do not match!");
+            
+            const res = await fetch(isLogin ? '/api/login' : '/api/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ 
+                    fullName: document.getElementById('fullName').value,
+                    email: document.getElementById('email').value, 
+                    password: document.getElementById('password').value 
+                })
+            });
+            const data = await res.json();
+            if(data.success) {
+                if(isLogin) { 
+                    localStorage.setItem('isAdmin', data.isAdmin); 
+                    localStorage.setItem('userId', data.userId); 
+                    localStorage.setItem('fullName', data.fullName); // تخزين الاسم الكامل القادم من السيرفر
+                    window.location.href = '/dashboard.html'; 
+                }
+                else { alert("Account created!"); toggleMode(); }
+            } else { alert("Login failed!"); }
+        });
+    </script>
+</body>
+</html>

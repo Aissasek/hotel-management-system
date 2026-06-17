@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat;
+            min-height: 100vh; 
+            padding-bottom: 100px; 
+            transition: background 0.5s ease;
+            background-color: #000;
+        }
+    </style>
+</head>
+<body class="p-8 text-white">
+
+    <h1 id="hotelNameDisplay" class="text-center text-5xl font-extrabold text-[#C5A059] mb-10 tracking-widest italic drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)]"></h1>
+
+    <div id="paymentModal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-50">
+        <div class="bg-gray-900 p-8 rounded-[2rem] border border-[#C5A059] w-96 text-center shadow-2xl">
+            <h2 class="text-2xl mb-6">Complete Payment</h2>
+            <div id="paymentInfo" class="mb-6 text-[#C5A059] font-bold text-lg"></div>
+            <input type="text" placeholder="Card Number" class="w-full p-3 bg-black border border-gray-700 rounded-lg mb-3">
+            <div class="flex gap-2 mb-6">
+                <input type="text" placeholder="MM/YY" class="w-1/2 p-3 bg-black border border-gray-700 rounded-lg">
+                <input type="text" placeholder="CVC" class="w-1/2 p-3 bg-black border border-gray-700 rounded-lg">
+            </div>
+            <button onclick="processPayment()" class="w-full bg-[#C5A059] py-3 rounded-xl font-bold mb-3 hover:bg-[#b08d4d] transition">Pay Now</button>
+            <button onclick="document.getElementById('paymentModal').classList.add('hidden')" class="text-gray-500 underline text-sm">Cancel</button>
+        </div>
+    </div>
+
+    <div id="roleModal" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
+        <div class="bg-gray-800 p-10 rounded-[2rem] border border-white/20 w-96 text-center">
+            <h2 class="text-3xl mb-8">Welcome</h2>
+            <button onclick="document.getElementById('roleModal').classList.add('hidden')" class="w-full bg-blue-600 py-4 rounded-xl mb-4">I am a Customer</button>
+            <button onclick="document.getElementById('adminDiv').classList.remove('hidden')" class="w-full bg-[#C5A059] py-4 rounded-xl">I am an Admin</button>
+            <div id="adminDiv" class="hidden mt-6">
+                <input type="password" id="adminPass" placeholder="Admin Password" class="w-full p-3 bg-black rounded-lg mb-3">
+                <button onclick="verifyAdmin()" class="w-full bg-green-600 py-2 rounded-lg">Verify</button>
+            </div>
+            <div id="footer" class="mt-8 pt-6 border-t border-white/10 flex flex-wrap justify-center gap-4 text-sm text-gray-400">
+                <a id="insBtn" href="#" target="_blank" class="hover:text-[#C5A059]">Instagram</a>
+                <a id="tikBtn" href="#" target="_blank" class="hover:text-[#C5A059]">TikTok</a>
+                <a id="fbBtn" href="#" target="_blank" class="hover:text-[#C5A059]">Facebook</a>
+                <a id="emailBtn" href="#" class="hover:text-[#C5A059]">Email</a>
+                <a id="waBtn" href="#" target="_blank" class="hover:text-[#C5A059]">WhatsApp</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="adminPanel" class="hidden max-w-4xl mx-auto mb-10 bg-white/10 p-6 rounded-2xl border border-white/10">
+        <h2 class="text-xl mb-4 text-[#C5A059]">Admin Control Panel</h2>
+        
+        <h3 class="mb-2 text-[#C5A059]">Manage Special Offers</h3>
+        <div class="grid grid-cols-1 gap-2 mb-8 bg-black/30 p-4 rounded-xl">
+            <input type="text" id="offerTitle" placeholder="Offer Title" class="p-2 bg-black/50 rounded">
+            <input type="number" id="offerPrice" placeholder="Price" class="p-2 bg-black/50 rounded">
+            <div class="grid grid-cols-2 gap-2">
+                <input type="date" id="offerStart" class="p-2 bg-black/50 rounded" title="Start Date">
+                <input type="date" id="offerEnd" class="p-2 bg-black/50 rounded" title="End Date">
+            </div>
+            <input type="file" id="offerImgFile" accept="image/*" class="p-2 bg-black/50 rounded text-white">
+            <button onclick="addOffer()" class="bg-green-600 py-2 rounded font-bold">Add Special Offer</button>
+        </div>
+
+        <h3 class="mb-2 text-[#C5A059]">Add New Room</h3>
+        <div class="grid grid-cols-1 gap-2 mb-8 bg-black/30 p-4 rounded-xl">
+            <input type="text" id="newRoomName" placeholder="Room Name" class="p-2 bg-black/50 rounded">
+            <input type="text" id="newRoomPrice" placeholder="Price" class="p-2 bg-black/50 rounded">
+            <input type="file" id="newRoomImg" accept="image/*" class="p-2 bg-black/50 rounded">
+            <button onclick="addRoom()" class="bg-green-600 py-2 rounded">Add Room</button>
+        </div>
+
+        <h3 class="mb-2 text-[#C5A059]">Add New Menu Item</h3>
+        <div class="grid grid-cols-1 gap-2 mb-8 bg-black/30 p-4 rounded-xl">
+            <input type="text" id="newItemName" placeholder="Item Name" class="p-2 bg-black/50 rounded">
+            <input type="text" id="newItemPrice" placeholder="Price" class="p-2 bg-black/50 rounded">
+            <input type="file" id="newItemImg" accept="image/*" class="p-2 bg-black/50 rounded">
+            <button onclick="addMenuItem()" class="bg-green-600 py-2 rounded">Add Item</button>
+        </div>
+
+        <h3 class="mb-2 text-[#C5A059]">Add New Facility</h3>
+        <div class="grid grid-cols-1 gap-2 mb-8 bg-black/30 p-4 rounded-xl">
+            <input type="text" id="newFacName" placeholder="Facility Name" class="p-2 bg-black/50 rounded">
+            <input type="text" id="newFacPrice" placeholder="Price" class="p-2 bg-black/50 rounded">
+            <input type="file" id="newFacImg" accept="image/*" class="p-2 bg-black/50 rounded">
+            <button onclick="addFacility()" class="bg-green-600 py-2 rounded">Add Facility</button>
+        </div>
+
+        <h3 class="mb-2 text-[#C5A059]">Hotel Name</h3>
+        <div class="flex gap-2 mb-8 bg-black/30 p-4 rounded-xl">
+            <input type="text" id="hotelNameInput" placeholder="Enter Hotel Name" class="w-full p-2 bg-black/50 rounded">
+            <button onclick="updateHotelName()" class="bg-blue-600 px-4 py-2 rounded">Save Name</button>
+        </div>
+
+        <h3 class="mb-2 text-[#C5A059]">Customer Payments</h3>
+        <div class="mb-8 bg-black/30 p-4 rounded-xl overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <thead><tr class="text-gray-400"><th>User Name</th><th>Item</th><th>Amount</th></tr></thead>
+                <tbody id="adminPaymentsTable"></tbody>
+            </table>
+        </div>
+        
+        <h3 class="mb-2 text-[#C5A059]">Manage Background Image</h3>
+        <div class="flex gap-2 mb-8 bg-black/30 p-4 rounded-xl">
+            <input type="text" id="bgUrlInput" placeholder="Paste Image URL" class="w-full p-2 bg-black/50 rounded">
+            <button onclick="updateBg()" class="bg-blue-600 px-4 py-2 rounded">Update BG</button>
+        </div>
+
+        <h3 class="mb-2 text-[#C5A059]">Manage Wi-Fi</h3>
+        <div class="flex gap-2 mb-8 bg-black/30 p-4 rounded-xl">
+            <input type="text" id="wifiName" placeholder="Wi-Fi Name" class="w-full p-2 bg-black/50 rounded">
+            <input type="text" id="wifiPass" placeholder="Password" class="w-full p-2 bg-black/50 rounded">
+            <button onclick="saveWifi()" class="bg-purple-600 px-4 py-2 rounded">Save</button>
+        </div>
+
+        <h3 class="mb-2 text-[#C5A059]">Manage Waiters</h3>
+        <form id="waiterForm" class="grid grid-cols-2 gap-4 mb-8 bg-black/30 p-4 rounded-xl">
+            <input type="text" name="name" placeholder="Waiter Name" class="p-2 bg-black/50 rounded">
+            <input type="text" name="phone" placeholder="WhatsApp Number" class="p-2 bg-black/50 rounded">
+            <select name="gender" class="p-2 bg-black/50 rounded text-white">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
+            <button type="button" onclick="addWaiter()" class="bg-blue-600 py-2 rounded">Add Waiter</button>
+        </form>
+
+        <h3 class="mb-2 text-[#C5A059]">Update Hotel Location (Map URL)</h3>
+        <div class="flex gap-2 mb-8">
+            <input type="text" id="mapUrlInput" placeholder="Paste Google Maps Embed URL" class="w-full p-2 bg-black/50 rounded">
+            <button onclick="updateMap()" class="bg-blue-600 px-6 py-2 rounded">Update Map</button>
+        </div>
+        
+        <h3 class="mb-2 text-[#C5A059]">Social Media Links</h3>
+        <div class="grid grid-cols-2 gap-4 mb-8">
+            <input type="text" id="insLink" placeholder="Instagram URL" class="p-2 bg-black/50 rounded">
+            <input type="text" id="tikLink" placeholder="TikTok URL" class="p-2 bg-black/50 rounded">
+            <input type="text" id="fbLink" placeholder="Facebook URL" class="p-2 bg-black/50 rounded">
+            <input type="text" id="emailLink" placeholder="Email Address" class="p-2 bg-black/50 rounded">
+            <input type="text" id="waLink" placeholder="WhatsApp Number" class="p-2 bg-black/50 rounded">
+            <button onclick="saveSocial()" class="col-span-2 bg-green-700 py-2 rounded">Save Social Links</button>
+        </div>
+        <button onclick="changePass()" class="text-sm underline text-gray-400">Change Admin Password</button>
+    </div>
+
+    <div id="userExpensesDiv" class="max-w-4xl mx-auto mb-10 p-6 bg-[#C5A059]/10 border border-[#C5A059] rounded-2xl text-center">
+        <h2 class="text-2xl text-[#C5A059] mb-2">My Total Expenses</h2>
+        <p id="totalAmountDisplay" class="text-3xl font-bold">$0</p>
+    </div>
+
+    <div class="max-w-4xl mx-auto mb-10 p-6 bg-[#C5A059]/10 border border-[#C5A059] rounded-2xl text-center">
+        <h2 class="text-2xl text-[#C5A059] mb-2">Hotel Wi-Fi</h2>
+        <p id="wifiDisplay" class="text-lg">Loading Wi-Fi details...</p>
+    </div>
+
+    <h2 class="text-3xl text-center mb-6">Our Waiters</h2>
+    <div id="waitersGrid" class="grid grid-cols-1 md:grid-cols-4 gap-4 max-w-6xl mx-auto mb-16"></div>
+
+    <h2 class="text-3xl text-center mb-6 mt-10">Special Offers</h2>
+    <div id="offersGrid" class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto mb-20"></div>
+    <h2 class="text-3xl text-center mb-6">Hotel Rooms</h2>
+    <div id="roomsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16"></div>
+    <h2 class="text-3xl text-center mb-6">Restaurant & Cafe</h2>
+    <div id="menuGrid" class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16"></div>
+    <h2 class="text-3xl text-center mb-6">Hotel Facilities</h2>
+    <div id="facilitiesGrid" class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16"></div>
+    <h2 class="text-3xl text-center mb-6 mt-10">Find Us</h2>
+    <div class="max-w-6xl mx-auto h-96 rounded-3xl overflow-hidden border border-white/10 mb-20">
+        <iframe id="hotelMap" src="" width="100%" height="100%" frameborder="0" style="border:0" allowfullscreen></iframe>
+    </div>
+
+    <script>
+        let isAdmin = false;
+        let pendingItem = { name: '', price: 0 };
+
+        // دالة موحدة لرفع البيانات مع ملف
+        async function uploadWithImage(apiEndpoint, dataFields, fileInputId) {
+            const formData = new FormData();
+            for (const key in dataFields) {
+                formData.append(key, dataFields[key]);
+            }
+            formData.append("image", document.getElementById(fileInputId).files[0]);
+            await fetch(apiEndpoint, { method: 'POST', body: formData });
+            loadAll();
+        }
+
+        async function addOffer() {
+            const formData = new FormData();
+            formData.append("title", document.getElementById('offerTitle').value);
+            formData.append("price", document.getElementById('offerPrice').value);
+            formData.append("start_date", document.getElementById('offerStart').value);
+            formData.append("end_date", document.getElementById('offerEnd').value);
+            formData.append("image", document.getElementById('offerImgFile').files[0]);
+            await fetch('/api/offers', { method: 'POST', body: formData });
+            loadOffers();
+        }
+
+        function addRoom() { uploadWithImage('/api/rooms', { name: document.getElementById('newRoomName').value, price: document.getElementById('newRoomPrice').value }, 'newRoomImg'); }
+        function addMenuItem() { uploadWithImage('/api/menu', { name: document.getElementById('newItemName').value, price: document.getElementById('newItemPrice').value }, 'newItemImg'); }
+        function addFacility() { uploadWithImage('/api/facilities', { name: document.getElementById('newFacName').value, price: document.getElementById('newFacPrice').value }, 'newFacImg'); }
+
+        async function loadBg() { try { const res = await fetch('/api/bg-image'); const data = await res.json(); if (data.url) document.body.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('${data.url}')`; } catch (err) { console.error(err); } }
+        async function updateHotelName() { const value = document.getElementById('hotelNameInput').value; await fetch('/api/update-setting', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({key: 'hotel_name', value}) }); document.getElementById('hotelNameDisplay').innerText = value; alert("Updated!"); }
+        async function loadHotelName() { const res = await fetch('/api/settings'); const data = await res.json(); const h = data.find(s => s.key === 'hotel_name'); if(h) document.getElementById('hotelNameDisplay').innerText = h.value; }
+        async function updateBg() { const url = document.getElementById('bgUrlInput').value; await fetch('/api/bg-image', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ url }) }); loadBg(); alert("Updated!"); }
+        async function saveWifi() { const data = { name: document.getElementById('wifiName').value, pass: document.getElementById('wifiPass').value }; await fetch('/api/wifi', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) }); alert("Saved!"); loadWifi(); }
+        async function loadWifi() { const res = await fetch('/api/wifi'); const data = await res.json(); document.getElementById('wifiDisplay').innerText = `Network: ${data.name || 'N/A'} | Password: ${data.pass || 'N/A'}`; }
+        async function addWaiter() { const form = document.getElementById('waiterForm'); const data = { name: form.querySelector('input[name="name"]').value, phone: form.querySelector('input[name="phone"]').value, gender: form.querySelector('select[name="gender"]').value }; await fetch('/api/waiters', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) }); loadWaiters(); form.reset(); }
+        async function loadWaiters() { const res = await fetch('/api/waiters'); const waiters = await res.json(); document.getElementById('waitersGrid').innerHTML = waiters.map(w => `<div class="bg-white/10 p-4 rounded-xl border border-white/10 text-center"><p class="font-bold text-lg">${w.name}</p><p class="text-sm text-gray-300">📞 ${w.phone}</p><p class="text-xs text-gray-400 mb-2">${w.gender}</p><a href="https://wa.me/${w.phone}" target="_blank" class="block bg-green-600 py-2 rounded-lg text-sm font-bold mb-2">WhatsApp</a>${isAdmin ? `<button onclick="deleteWaiter(${w.id})" class="w-full bg-red-600 py-1 rounded text-xs">Delete</button>` : ''}</div>`).join(''); }
+        async function deleteWaiter(id) { await fetch(`/api/waiters/${id}`, { method: 'DELETE' }); loadWaiters(); }
+        async function saveSocial() { const links = { instagram: document.getElementById('insLink').value, tiktok: document.getElementById('tikLink').value, facebook: document.getElementById('fbLink').value, email: document.getElementById('emailLink').value, whatsapp: document.getElementById('waLink').value }; for (const [key, value] of Object.entries(links)) { await fetch('/api/update-setting', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({key, value}) }); } alert("Saved!"); }
+        async function loadSocial() { const res = await fetch('/api/settings'); const settings = await res.json(); settings.forEach(s => { if(s.key === 'instagram') document.getElementById('insBtn').href = s.value; if(s.key === 'tiktok') document.getElementById('tikBtn').href = s.value; if(s.key === 'facebook') document.getElementById('fbBtn').href = s.value; if(s.key === 'email') document.getElementById('emailBtn').href = 'mailto:' + s.value; if(s.key === 'whatsapp') document.getElementById('waBtn').href = 'https://wa.me/' + s.value; }); }
+        async function updateMap() { const url = document.getElementById('mapUrlInput').value; await fetch('/api/map', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ url }) }); document.getElementById('hotelMap').src = url; alert("Updated!"); }
+        async function loadMap() { const res = await fetch('/api/map'); const data = await res.json(); if (data.url) document.getElementById('hotelMap').src = data.url; }
+        function showPayment(name, price) { pendingItem = { name, price }; document.getElementById('paymentInfo').innerText = `${name} - $${price}`; document.getElementById('paymentModal').classList.remove('hidden'); }
+        async function processPayment() { const userId = localStorage.getItem('userId') || 0; const userName = localStorage.getItem('fullName') || 'Guest'; const res = await fetch('/api/pay', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ userId, userName, itemName: pendingItem.name, amount: pendingItem.price }) }); const data = await res.json(); if(data.success) { alert("Success!"); document.getElementById('paymentModal').classList.add('hidden'); loadAll(); } else { alert("Failed!"); } }
+        async function loadAdminPayments() { const res = await fetch('/api/admin/payments'); const payments = await res.json(); document.getElementById('adminPaymentsTable').innerHTML = payments.map(p => `<tr><td class="p-2">${p.user_name}</td><td class="p-2">${p.item_name}</td><td class="p-2">$${p.amount}</td></tr>`).join(''); }
+        async function loadUserExpenses() { const userId = localStorage.getItem('userId'); if(!userId) return; const res = await fetch(`/api/user/total/${userId}`); const data = await res.json(); document.getElementById('totalAmountDisplay').innerText = `$${data.total || 0}`; }
+        async function verifyAdmin() { const pass = document.getElementById('adminPass').value; const res = await fetch('/api/admin-verify', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({password: pass}) }); const data = await res.json(); if(data.success) { isAdmin = true; document.getElementById('roleModal').classList.add('hidden'); document.getElementById('adminPanel').classList.remove('hidden'); document.getElementById('userExpensesDiv').classList.add('hidden'); loadAll(); } else alert("Wrong!"); }
+        
+        function loadAll() { loadRooms(); loadMenu(); loadFacilities(); loadOffers(); loadSocial(); loadWifi(); loadWaiters(); loadBg(); loadMap(); loadHotelName(); if(isAdmin) loadAdminPayments(); else loadUserExpenses(); }
+        
+        async function loadOffers() { 
+            const res = await fetch('/api/offers'); 
+            const offers = await res.json(); 
+            document.getElementById('offersGrid').innerHTML = offers.map(o => `
+                <div class="bg-gradient-to-r from-[#C5A059]/20 to-black p-6 rounded-3xl border border-[#C5A059]">
+                    ${o.image_url ? `<img src="${o.image_url}" class="h-40 w-full object-cover rounded-xl mb-4">` : ''}
+                    <h3 class="text-2xl font-bold">${o.title}</h3>
+                    <p class="text-gray-300 my-2 text-sm">Valid: ${o.start_date} to ${o.end_date}</p>
+                    <p class="text-[#C5A059] font-bold text-xl">$${o.price}</p>
+                    ${!isAdmin ? `<button onclick="showPayment('${o.title}', ${o.price})" class="mt-4 w-full bg-[#C5A059] py-2 rounded-lg font-bold">Subscribe</button>` : `<button onclick="deleteOffer(${o.id})" class="mt-4 w-full bg-red-900 py-2 rounded-lg text-xs font-bold">Delete</button>`}
+                </div>`).join(''); 
+        }
+        
+        async function deleteOffer(id) { await fetch(`/api/offers/${id}`, { method: 'DELETE' }); loadOffers(); }
+        async function changePass() { const oldPass = prompt("Old password:"); const newPass = prompt("New password:"); const res = await fetch('/api/change-password', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({oldPass, newPass}) }); const data = await res.json(); if(data.success) alert("Changed!"); else alert("Failed!"); }
+        async function loadRooms() { const res = await fetch('/api/rooms'); const rooms = await res.json(); document.getElementById('roomsGrid').innerHTML = rooms.map(r => `<div class="bg-white/10 p-6 rounded-3xl text-center border border-white/10"><img src="${r.image_url}" class="h-40 w-full object-cover rounded-xl mb-4">${isAdmin ? `<input id="n_${r.id}" value="${r.name}" class="w-full bg-black/50 p-2 mb-2"><input id="p_${r.id}" value="${r.price}" class="w-full bg-black/50 p-2 mb-2"><button onclick="updateRoom(${r.id})" class="w-full bg-blue-600 py-2">Update</button><button onclick="deleteRoom(${r.id})" class="w-full bg-red-600 py-2 mt-2">Delete</button>` : `<h3 class="text-2xl font-bold">${r.name}</h3><p class="text-xl">$${r.price}</p><button onclick="showPayment('${r.name}', ${r.price})" class="mt-4 w-full bg-[#C5A059] py-3 font-bold">Book Now</button>`}</div>`).join(''); }
+        async function loadMenu() { const res = await fetch('/api/menu'); const items = await res.json(); document.getElementById('menuGrid').innerHTML = items.map(i => `<div class="bg-white/10 p-6 rounded-3xl text-center border border-white/10"><img src="${i.image_url}" class="h-40 w-full object-cover rounded-xl mb-4">${isAdmin ? `<input id="mn_${i.id}" value="${i.name}" class="w-full bg-black/50 p-2 mb-2"><input id="mp_${i.id}" value="${i.price}" class="w-full bg-black/50 p-2 mb-2"><button onclick="updateMenuItem(${i.id})" class="w-full bg-blue-600 py-2">Update</button><button onclick="deleteMenuItem(${i.id})" class="w-full bg-red-600 py-2 mt-2">Delete</button>` : `<h3 class="text-xl font-bold">${i.name}</h3><p class="text-[#C5A059]">$${i.price}</p><button onclick="showPayment('${i.name}', ${i.price})" class="mt-4 w-full bg-[#C5A059] py-3 font-bold">Order Now</button>`}</div>`).join(''); }
+        async function loadFacilities() { const res = await fetch('/api/facilities'); const items = await res.json(); document.getElementById('facilitiesGrid').innerHTML = items.map(f => `<div class="bg-white/10 p-6 rounded-3xl text-center border border-white/10"><img src="${f.image_url}" class="h-40 w-full object-cover rounded-xl mb-4">${isAdmin ? `<input id="fn_${f.id}" value="${f.name}" class="w-full bg-black/50 p-2 mb-2"><button onclick="updateFacility(${f.id})" class="w-full bg-blue-600 py-2">Update</button><button onclick="deleteFacility(${f.id})" class="w-full bg-red-600 py-2 mt-2">Delete</button>` : `<h3 class="text-xl font-bold">${f.name}</h3><p class="text-[#C5A059]">$${f.price}</p><button onclick="showPayment('${f.name}', ${f.price})" class="mt-4 w-full bg-purple-600 py-3 font-bold">Subscribe</button>`}</div>`).join(''); }
+        async function updateRoom(id) { await fetch(`/api/rooms/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name: document.getElementById('n_'+id).value, price: document.getElementById('p_'+id).value }) }); loadRooms(); }
+        async function updateMenuItem(id) { await fetch(`/api/menu/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name: document.getElementById('mn_'+id).value, price: document.getElementById('mp_'+id).value }) }); loadMenu(); }
+        async function updateFacility(id) { await fetch(`/api/facilities/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name: document.getElementById('fn_'+id).value }) }); loadFacilities(); }
+        async function deleteRoom(id) { await fetch(`/api/rooms/${id}`, { method: 'DELETE' }); loadRooms(); }
+        async function deleteMenuItem(id) { await fetch(`/api/menu/${id}`, { method: 'DELETE' }); loadMenu(); }
+        async function deleteFacility(id) { await fetch(`/api/facilities/${id}`, { method: 'DELETE' }); loadFacilities(); }
+        
+        loadAll();
+    </script>
+</body>
+</html>

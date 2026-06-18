@@ -1,7 +1,7 @@
 const express = require('express');
 const db = require('./database');
 const multer = require('multer');
-const bcrypt = require('bcrypt'); // تم استيراد المكتبة
+const bcrypt = require('bcryptjs'); // تم استبدال bcrypt بـ bcryptjs المتوافقة مع الرفع السحابي
 const app = express();
 const upload = multer({ dest: 'uploads/' });
 
@@ -243,4 +243,6 @@ app.post('/api/change-password', (req, res) => {
     });
 });
 
-app.listen(3000, () => console.log('Server running on http://localhost:3000'));
+// ربط تشغيل السيرفر بالمنفذ الديناميكي لـ Render أو المنفذ المحلي 3000
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -220,14 +220,7 @@ app.post('/api/map', (req, res) => {
     });
 });
 
-// 8. نظام المالك
-app.post('/api/admin-verify', (req, res) => {
-    db.get("SELECT password FROM users WHERE is_admin = 1", [], async (err, row) => {
-        if (!row) return res.json({ success: false });
-        const match = await bcrypt.compare(req.body.password, row.password);
-        res.json({ success: match });
-    });
-});
+
 
 app.post('/api/change-password', (req, res) => {
     const { oldPass, newPass } = req.body;

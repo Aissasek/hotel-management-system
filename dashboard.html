@@ -247,7 +247,25 @@
         async function deleteRoom(id) { await fetch(`/api/rooms/${id}`, { method: 'DELETE' }); loadRooms(); }
         async function deleteMenuItem(id) { await fetch(`/api/menu/${id}`, { method: 'DELETE' }); loadMenu(); }
         async function deleteFacility(id) { await fetch(`/api/facilities/${id}`, { method: 'DELETE' }); loadFacilities(); }
-        
+        async function verifyAdmin() {
+    // يتم إرسال طلب السيرفر مباشرة دون الحاجة للتحقق من النص المدخل
+    const res = await fetch('/api/admin-verify', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ password: "" }) 
+    });
+    const data = await res.json();
+    
+    if (data.success) {
+        isAdmin = true;
+        document.getElementById('roleModal').classList.add('hidden');
+        document.getElementById('adminPanel').classList.remove('hidden');
+        document.getElementById('userExpensesDiv').classList.add('hidden');
+        loadAll();
+    } else {
+        alert("Wrong!");
+    }
+}
         loadAll();
     </script>
 </body>

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <title>Hotel Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { 
@@ -38,8 +40,8 @@
             <button onclick="document.getElementById('roleModal').classList.add('hidden')" class="w-full bg-blue-600 py-4 rounded-xl mb-4">I am a Customer</button>
             <button onclick="document.getElementById('adminDiv').classList.remove('hidden')" class="w-full bg-[#C5A059] py-4 rounded-xl">I am an Admin</button>
             <div id="adminDiv" class="hidden mt-6">
-                <input type="password" id="adminPass" placeholder="Admin Password" class="w-full p-3 bg-black rounded-lg mb-3">
-                <button onclick="verifyAdmin()" class="w-full bg-green-600 py-2 rounded-lg">Verify</button>
+                <input type="password" id="adminPass" placeholder="Click Verify to enter instantly" class="w-full p-3 bg-black rounded-lg mb-3 text-center border border-gray-700">
+                <button onclick="verifyAdmin()" class="w-full bg-green-600 py-2 rounded-lg font-bold">Verify & Enter</button>
             </div>
             <div id="footer" class="mt-8 pt-6 border-t border-white/10 flex flex-wrap justify-center gap-4 text-sm text-gray-400">
                 <a id="insBtn" href="#" target="_blank" class="hover:text-[#C5A059]">Instagram</a>
@@ -176,7 +178,6 @@
         let isAdmin = false;
         let pendingItem = { name: '', price: 0 };
 
-        // دالة موحدة لرفع البيانات مع ملف
         async function uploadWithImage(apiEndpoint, dataFields, fileInputId) {
             const formData = new FormData();
             for (const key in dataFields) {
@@ -219,7 +220,25 @@
         async function processPayment() { const userId = localStorage.getItem('userId') || 0; const userName = localStorage.getItem('fullName') || 'Guest'; const res = await fetch('/api/pay', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ userId, userName, itemName: pendingItem.name, amount: pendingItem.price }) }); const data = await res.json(); if(data.success) { alert("Success!"); document.getElementById('paymentModal').classList.add('hidden'); loadAll(); } else { alert("Failed!"); } }
         async function loadAdminPayments() { const res = await fetch('/api/admin/payments'); const payments = await res.json(); document.getElementById('adminPaymentsTable').innerHTML = payments.map(p => `<tr><td class="p-2">${p.user_name}</td><td class="p-2">${p.item_name}</td><td class="p-2">$${p.amount}</td></tr>`).join(''); }
         async function loadUserExpenses() { const userId = localStorage.getItem('userId'); if(!userId) return; const res = await fetch(`/api/user/total/${userId}`); const data = await res.json(); document.getElementById('totalAmountDisplay').innerText = `$${data.total || 0}`; }
-        async function verifyAdmin() { const pass = document.getElementById('adminPass').value; const res = await fetch('/api/admin-verify', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({password: pass}) }); const data = await res.json(); if(data.success) { isAdmin = true; document.getElementById('roleModal').classList.add('hidden'); document.getElementById('adminPanel').classList.remove('hidden'); document.getElementById('userExpensesDiv').classList.add('hidden'); loadAll(); } else alert("Wrong!"); }
+        
+        // تم تحديث الدالة لتخطي التحقق من باسوورد الواجهة تماماً وإرسال طلب مباشر
+        async function verifyAdmin() { 
+            const res = await fetch('/api/admin-verify', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ password: "" }) 
+            }); 
+            const data = await res.json(); 
+            if(data.success) { 
+                isAdmin = true; 
+                document.getElementById('roleModal').classList.add('hidden'); 
+                document.getElementById('adminPanel').classList.remove('hidden'); 
+                document.getElementById('userExpensesDiv').classList.add('hidden'); 
+                loadAll(); 
+            } else {
+                alert("Wrong!"); 
+            }
+        }
         
         function loadAll() { loadRooms(); loadMenu(); loadFacilities(); loadOffers(); loadSocial(); loadWifi(); loadWaiters(); loadBg(); loadMap(); loadHotelName(); if(isAdmin) loadAdminPayments(); else loadUserExpenses(); }
         
@@ -247,25 +266,7 @@
         async function deleteRoom(id) { await fetch(`/api/rooms/${id}`, { method: 'DELETE' }); loadRooms(); }
         async function deleteMenuItem(id) { await fetch(`/api/menu/${id}`, { method: 'DELETE' }); loadMenu(); }
         async function deleteFacility(id) { await fetch(`/api/facilities/${id}`, { method: 'DELETE' }); loadFacilities(); }
-        async function verifyAdmin() {
-    // يتم إرسال طلب السيرفر مباشرة دون الحاجة للتحقق من النص المدخل
-    const res = await fetch('/api/admin-verify', { 
-        method: 'POST', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify({ password: "" }) 
-    });
-    const data = await res.json();
-    
-    if (data.success) {
-        isAdmin = true;
-        document.getElementById('roleModal').classList.add('hidden');
-        document.getElementById('adminPanel').classList.remove('hidden');
-        document.getElementById('userExpensesDiv').classList.add('hidden');
-        loadAll();
-    } else {
-        alert("Wrong!");
-    }
-}
+        
         loadAll();
     </script>
 </body>

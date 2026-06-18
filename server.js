@@ -220,7 +220,11 @@ app.post('/api/map', (req, res) => {
     });
 });
 
-
+// 8. نظام المالك (تمت إزالة فحص كلمة المرور لتسهيل الدخول الفوري)
+app.post('/api/admin-verify', (req, res) => {
+    // السيرفر يوافق تلقائياً على طلب الدخول بلوحة التحكم
+    res.json({ success: true });
+});
 
 app.post('/api/change-password', (req, res) => {
     const { oldPass, newPass } = req.body;
